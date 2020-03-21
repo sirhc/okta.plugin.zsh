@@ -1,6 +1,22 @@
 function aws-okta() {
-    if [[ $1 == profile ]]; then
-        eval $(command aws-okta env "$2" | sed -e 's/^/export /' -e 's/$/;/')
+    local arg env rv
+    local -a args=()
+
+    for arg in "$@"; do
+        if [[ ! $arg =~ ^- ]]; then
+            args+=("$arg")
+        fi
+    done
+
+    if [[ $args[1] == profile && -n $args[2] ]]; then
+        env="$(command aws-okta env "$args[2]")"
+        rv=$?
+
+        if [[ $rv -gt 0 ]]; then
+            return $rv
+        fi
+
+        eval "$(sed -e 's/^/export /' -e 's/$/;/' <<<"$env")"
 
         # If the Okta profile succeeded, set the AWS profile so it will show
         # up in the Powerline information.
@@ -9,6 +25,15 @@ function aws-okta() {
         fi
 
         return
+    fi
+
+    if [[ $args[1] == profile ]]; then
+        {
+            printf 'too few arguments\n'
+            command aws-okta help | tail -n +3
+        } 1>&2
+
+        return 1
     fi
 
     command aws-okta "$@"
