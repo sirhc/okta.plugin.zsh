@@ -4,6 +4,7 @@
 
 function aop() {
     eval "$(command aws-okta env "$1" | sed -e 's/^/export /' -e 's/$/;/')"
+    export AWS_PROFILE="$AWS_OKTA_PROFILE"
 }
 
 _aws_okta_global_flags=(
