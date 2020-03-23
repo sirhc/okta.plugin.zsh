@@ -1,42 +1,9 @@
-function aws-okta() {
-    local arg env rv
-    local -a args=()
+# The `aop` (AWS Okta Profile) function maps `aop <profile>` to `aws-okta env
+# <profile>` and sets the resulting token in the environment. It also sets
+# `AWS_PROFILE` for any shell prompts to pick up.
 
-    for arg in "$@"; do
-        if [[ ! $arg =~ ^- ]]; then
-            args+=("$arg")
-        fi
-    done
-
-    if [[ $args[1] == profile && -n $args[2] ]]; then
-        env="$(command aws-okta env "$args[2]")"
-        rv=$?
-
-        if [[ $rv -gt 0 ]]; then
-            return $rv
-        fi
-
-        eval "$(sed -e 's/^/export /' -e 's/$/;/' <<<"$env")"
-
-        # If the Okta profile succeeded, set the AWS profile so it will show
-        # up in the Powerline information.
-        if [[ -n $AWS_OKTA_PROFILE ]]; then
-            export AWS_PROFILE="$AWS_OKTA_PROFILE"
-        fi
-
-        return
-    fi
-
-    if [[ $args[1] == profile ]]; then
-        {
-            printf 'too few arguments\n'
-            command aws-okta help | tail -n +3
-        } 1>&2
-
-        return 1
-    fi
-
-    command aws-okta "$@"
+function aop() {
+    eval "$(command aws-okta env "$1" | sed -e 's/^/export /' -e 's/$/;/')"
 }
 
 _aws_okta_global_flags=(
