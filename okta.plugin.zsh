@@ -19,7 +19,6 @@ _aws_okta_global_flags=(
 function _aws_okta_commands() {
     local -a commands
     commands=(
-        # From `aws-okta --help`.
         'add:add your okta credentials'
         'completion:Output shell completion code for the given shell (bash or zsh)'
         'cred-process:cred-process generates a credential_process ready output'
@@ -30,9 +29,6 @@ function _aws_okta_commands() {
         'login:login will authenticate you through okta and allow you to access your AWS environment through a browser'
         'version:print version'
         'write-to-credentials:write-to-credentials writes credentials for the specified profile to the specified credentials file'
-
-        # Custom commands.
-        'profile:set specified profile in current shell'
     )
     _describe 'command' commands
 }
@@ -122,14 +118,6 @@ function _aws_okta_write_to_credentials() {
         '2:credentials_file:_files'
 }
 
-function _aws_okta_profile() {
-    _arguments \
-        $_aws_okta_global_flags[@] \
-        '(-a --assume-role-ttl)'{-a,--assume-role-ttl}'[Expiration time for assumed role (default 1h0m0s)]:duration:' \
-        '(-t --session-ttl)'{-t,--session-ttl}'[Expiration time for okta role session (default 1h0m0s)]:duration:' \
-        '1:profile:_aws_okta_profiles'
-}
-
 function _aws_okta() {
     local line
 
@@ -149,8 +137,7 @@ function _aws_okta() {
         login) _aws_okta_login ;;
         version) _aws_okta_version ;;
         write-to-credentials) _aws_okta_write_to_credentials ;;
-
-        profile) _aws_okta_profile ;;
     esac
 }
 compdef _aws_okta aws-okta
+compdef _aws_okta_profiles aop
