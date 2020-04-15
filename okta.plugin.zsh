@@ -151,8 +151,8 @@ compdef _aws_okta_profiles aop
 
 function _okta_awscli_okta_aws_profiles() {
     local -a profiles
-    profiles=($(sed -n -e '/^\[/s/\[\(.*\)\]/\1/p' "$HOME/.okta-aws" &>/dev/null || :))
-    _describe 'profile' profiles
+    profiles=($(sed -n -e '/^\[/s/\[\(.*\)\]/\1/p' "$HOME/.okta-aws" 2>/dev/null || :))
+    _describe -t profile 'profile' profiles && return 0
 }
 
 # Fetch profiles from <~/.aws/credentials>. These are the names found in the
@@ -160,8 +160,8 @@ function _okta_awscli_okta_aws_profiles() {
 
 function _okta_awscli_aws_profiles() {
     local -a profiles
-    profiles=($(sed -n -e '/^\[/s/\[\(.*\)\]/\1/p' "${AWS_SHARED_CREDENTIALS_FILE:-$HOME/.aws/credentials}" &>/dev/null || :))
-    _describe 'profile' profiles
+    profiles=($(sed -n -e '/^\[/s/\[\(.*\)\]/\1/p' "${AWS_SHARED_CREDENTIALS_FILE:-$HOME/.aws/credentials}" 2>/dev/null || :))
+    _describe -t profile 'profile' profiles && return 0
 }
 
 function _okta_awscli_args() {
