@@ -145,6 +145,22 @@ function _aws_okta() {
 compdef _aws_okta aws-okta
 compdef _aws_okta_profiles aop
 
+# Fetch profiles from <~/.okta-aws>. These are the names found in the section
+# headers (e.g., `[default]`).
+function _okta_awscli_okta_aws_profiles() {
+    local -a profiles
+    profiles=($(sed -n -e '/^\[/s/\[\(.*\)\]/\1/p' "$HOME/.okta-aws" &>/dev/null || :))
+    _describe 'profile' profiles
+}
+
+# Fetch profiles from <~/.aws/credentials>. These are the names found in the
+# section headers (e.g., `[default]`).
+function _okta_awscli_aws_profiles() {
+    local -a profiles
+    profiles=($(sed -n -e '/^\[/s/\[\(.*\)\]/\1/p' "${AWS_SHARED_CREDENTIALS_FILE:-$HOME/.aws/credentials}" &>/dev/null || :))
+    _describe 'profile' profiles
+}
+
 # https://github.com/jmhale/okta-awscli
 function _okta_awscli() {
     local curcontext=$curcontext state state_descr line ret=1
@@ -156,8 +172,8 @@ function _okta_awscli() {
         '(- *)'{-V,--version}'[Outputs version number and exits]' \
         '(-d --debug)'{-d,--debug}'[Enables debug mode]' \
         '(-f --force)'{-f,--force}'[Forces new STS credentials; skips STS credentials validation]' \
-        '--okta-profile+[Name of the profile to use in .okta-aws]:TEXT:' \
-        '--profile+[Name of the profile to store temporary credentials in ~/.aws/credentials]:TEXT:' \
+        '--okta-profile+[Name of the profile to use in .okta-aws]:TEXT:_okta_awscli_okta_aws_profiles' \
+        '--profile+[Name of the profile to store temporary credentials in ~/.aws/credentials]:TEXT:_okta_awscli_aws_profiles' \
         '(-c --cache)'{-c,--cache}'[Cache the default profile credentials to ~/.okta-credentials.cache]' \
         '(-t --token)'{-t,--token}+'[TOTP token from your authenticator app]:TEXT:' \
         '(- *)--help[Show help message and exit]' \
