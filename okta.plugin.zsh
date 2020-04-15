@@ -121,6 +121,7 @@ function _aws_okta_write_to_credentials() {
 
 # https://github.com/segmentio/aws-okta
 # Note about deprecation: https://github.com/segmentio/aws-okta/issues/278
+
 function _aws_okta() {
     local line
 
@@ -147,6 +148,7 @@ compdef _aws_okta_profiles aop
 
 # Fetch profiles from <~/.okta-aws>. These are the names found in the section
 # headers (e.g., `[default]`).
+
 function _okta_awscli_okta_aws_profiles() {
     local -a profiles
     profiles=($(sed -n -e '/^\[/s/\[\(.*\)\]/\1/p' "$HOME/.okta-aws" &>/dev/null || :))
@@ -155,18 +157,35 @@ function _okta_awscli_okta_aws_profiles() {
 
 # Fetch profiles from <~/.aws/credentials>. These are the names found in the
 # section headers (e.g., `[default]`).
+
 function _okta_awscli_aws_profiles() {
     local -a profiles
     profiles=($(sed -n -e '/^\[/s/\[\(.*\)\]/\1/p' "${AWS_SHARED_CREDENTIALS_FILE:-$HOME/.aws/credentials}" &>/dev/null || :))
     _describe 'profile' profiles
 }
 
+function _okta_awscli_args() {
+    # Seed the line with 'aws' so the _normal completion function will operate
+    # as if for the aws command.
+    if [[ ${#words[@]} -eq 1 ]]; then
+        CURRENT=2
+        line=(aws '')
+        words=(aws '')
+    else
+        CURRENT=$((CURRENT + 1))
+        line=('aws' "${line[@]}")
+        words=('aws' "${words[@]}")
+    fi
+
+    _normal
+}
+
 # https://github.com/jmhale/okta-awscli
+
 function _okta_awscli() {
     local curcontext=$curcontext state state_descr line ret=1
     typeset -A opt_args
 
-    # TODO: How to hook into the aws command completion instead of using _normal?
     _arguments \
         '(-v --verbose)'{-v,--verbose}'[Enables verbose mode]' \
         '(- *)'{-V,--version}'[Outputs version number and exits]' \
@@ -177,7 +196,7 @@ function _okta_awscli() {
         '(-c --cache)'{-c,--cache}'[Cache the default profile credentials to ~/.okta-credentials.cache]' \
         '(-t --token)'{-t,--token}+'[TOTP token from your authenticator app]:TEXT:' \
         '(- *)--help[Show help message and exit]' \
-        '*:: :_normal' \
+        '*:: :_okta_awscli_args' \
         && ret=0
 
     return ret
