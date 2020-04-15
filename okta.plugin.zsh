@@ -119,6 +119,8 @@ function _aws_okta_write_to_credentials() {
         '2:credentials_file:_files'
 }
 
+# https://github.com/segmentio/aws-okta
+# Note about deprecation: https://github.com/segmentio/aws-okta/issues/278
 function _aws_okta() {
     local line
 
@@ -142,3 +144,26 @@ function _aws_okta() {
 }
 compdef _aws_okta aws-okta
 compdef _aws_okta_profiles aop
+
+# https://github.com/jmhale/okta-awscli
+function _okta_awscli() {
+    local curcontext=$curcontext state state_descr line ret=1
+    typeset -A opt_args
+
+    # TODO: How to hook into the aws command completion instead of using _normal?
+    _arguments \
+        '(-v --verbose)'{-v,--verbose}'[Enables verbose mode]' \
+        '(- *)'{-V,--version}'[Outputs version number and exits]' \
+        '(-d --debug)'{-d,--debug}'[Enables debug mode]' \
+        '(-f --force)'{-f,--force}'[Forces new STS credentials; skips STS credentials validation]' \
+        '--okta-profile+[Name of the profile to use in .okta-aws]:TEXT:' \
+        '--profile+[Name of the profile to store temporary credentials in ~/.aws/credentials]:TEXT:' \
+        '(-c --cache)'{-c,--cache}'[Cache the default profile credentials to ~/.okta-credentials.cache]' \
+        '(-t --token)'{-t,--token}+'[TOTP token from your authenticator app]:TEXT:' \
+        '(- *)--help[Show help message and exit]' \
+        '*:: :_normal' \
+        && ret=0
+
+    return ret
+}
+compdef _okta_awscli okta-awscli
